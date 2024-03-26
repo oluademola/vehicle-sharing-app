@@ -7,11 +7,11 @@ from django.views.generic import TemplateView
 
 from apps.common.choices import VEHICLE_MAKES, VEHICLE_TYPES
 
-"""
-A brief description of the class functionality.
-"""
 
 class HomeView(TemplateView):
+    """
+    A brief description of the class functionality.
+    """
     template_name = "home.html"
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
@@ -20,9 +20,8 @@ class HomeView(TemplateView):
         context["VEHICLE_MAKES"] = VEHICLE_MAKES
         return context
 
-"""
-A brief description of the class functionality.
-"""
-
 class AboutView(TemplateView):
+    """
+    A brief description of the class functionality.
+    """
     template_name = "about.html"
