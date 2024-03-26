@@ -1,8 +1,15 @@
+"""
+A brief description of the module's functionality.
+"""
+
 from typing import Any
 from django.views.generic import TemplateView
 
 from apps.common.choices import VEHICLE_MAKES, VEHICLE_TYPES
 
+"""
+A brief description of the class functionality.
+"""
 
 class HomeView(TemplateView):
     template_name = "home.html"
@@ -13,6 +20,9 @@ class HomeView(TemplateView):
         context["VEHICLE_MAKES"] = VEHICLE_MAKES
         return context
 
+"""
+A brief description of the class functionality.
+"""
 
 class AboutView(TemplateView):
     template_name = "about.html"
