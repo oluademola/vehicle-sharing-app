@@ -2,10 +2,7 @@
 A brief description of the module's functionality.
 """
 
-from django.shortcuts import redirect
-from django.contrib import messages
 from django.views import generic
-from django.db.models import Q
 from apps.vehicles.models import Vehicle
 from apps.common.choices import VEHICLE_MAKES, VEHICLE_TYPES
 
