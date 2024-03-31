@@ -14,22 +14,22 @@ from pathlib import Path
 import os
 from django.contrib.messages import constants as messages
 from django.urls import reverse_lazy
-# import environ
+import dotenv
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# env = environ.Env()
-# environ.Env.read_env()
+# Load environment variables from .env file
+dotenv.load_dotenv()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-# SECRET_KEY = env("SECRET_KEY")
-SECRET_KEY="django-insecure-==64$+0xzy0$w_!7qgi39@1pkli*ejx3p%vf%y7^r54oblefdw"
+# Access environment variables using os.environ
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
