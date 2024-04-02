@@ -1,55 +1,142 @@
+from datetime import datetime
 from django.contrib import messages
 from django.urls import reverse_lazy
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
-from apps.bookings.mixins import BookingMixing
+from apps.bookings.forms import CreateBookingForm, UpdateBookingForm
 from apps.bookings.models import Booking
+from apps.vehicles.models import Vehicle
+from apps.common import choices
 
 
 class BookVehicleView(LoginRequiredMixin, generic.CreateView):
-    model = Booking
-    fields = "__all__"
+    form_class = CreateBookingForm
     template_name = 'bookings/book_vehicle.html'
-    success_url = reverse_lazy("bookings")
+    success_url = reverse_lazy("booking_list")
 
-    def post(self, request, *args, **kwargs):
-        instance = self.get_object()
+    def get_initial(self):
+        initial = super().get_initial()
+        vehicle = get_object_or_404(Vehicle, id=self.kwargs['vehicle_id'])
+        initial['pickup_location'] = vehicle.pickup_location
+        initial['dropoff_location'] = vehicle.pickup_location
+        return initial
 
-        if not self.is_booking_available(instance.vehicle, instance.start_date, instance.end_date):
-            messages.info(
-                self.request, "bookings not available, please select a different date or check other vehicles.")
-            return redirect('available_vehicles')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        vehicle_id = self.kwargs.get('vehicle_id')
+        vehicle_obj = get_object_or_404(Vehicle, id=vehicle_id)
+        context['vehicle_id'] = vehicle_id
+        context["vehicle"] = vehicle_obj
+        return context
 
-        if not self.cannot_book_own_listing(instance):
-            messages.info(
-                self.request, "you cannot rent your own vehicle listing(s).")
-            return redirect('available_vehicles')
+    def form_valid(self, form):
+        vehicle_id = self.kwargs.get('vehicle_id')
+        vehicle = get_object_or_404(Vehicle, id=vehicle_id)
+        booking = form.save(commit=False)
+        booking.vehicle = vehicle
+        booking.renter = self.request.user
+        booking.save()
+        messages.success(self.request, 'Booking successful.')
+        return super().form_valid(form)
 
-        messages.success(self.request, "booking successfull.")
-
-    def is_booking_available(self, vehicle, start_date, end_date):
-        bookings = Booking.objects.filter(vehicle=vehicle)
-        for booking in bookings:
-            if not (end_date < booking.start_date or start_date > booking.end_date):
-                return False
-        return True
-
-    def cannot_book_own_listing(booking: Booking):
-        if booking.renter == booking.vehicle.owner:
-            return False
-        return True
+    def form_invalid(self, form):
+        messages.error(
+            self.request, "could not process booking, please try again")
+        return super().form_invalid(form)
 
 
-class CustomerBookingListView(LoginRequiredMixin, generic.ListView):
+class OrdersListView(LoginRequiredMixin, generic.ListView):
+    """
+    This returns a list of vehicle a user has leased.
+    """
     model = Booking
     fields = "__all__"
     template_name = "bookings/orders.html"
-    context_object_name = "bookings"
+    context_object_name = "orders"
+
+    def get_queryset(self):
+        return super().get_queryset().filter(vehicle__owner=self.request.user)
 
 
-class OwnerBookingListView(LoginRequiredMixin, generic.ListView):
+class BookingListView(LoginRequiredMixin, generic.ListView):
+    """
+    Returns list of all vehicle a user has rented.
+    """
     model = Booking
     fields = "__all__"
-    template_name = "bookings/my-bookings.html"
+    template_name = "bookings/my_bookings.html"
     context_object_name = "bookings"
+
+    def get_queryset(self):
+        return super().get_queryset().filter(renter=self.request.user)
+
+
+class UpdateBookingView(LoginRequiredMixin, generic.UpdateView):
+    queryset = Booking.objects.all()
+    form_class = UpdateBookingForm
+    template_name = "bookings/edit_booking.html"
+    context_object_name = "booking"
+    pk_url_kwarg = "id"
+    success_url = reverse_lazy("booking_list")
+
+    def form_valid(self, form):
+        messages.success(self.request, "booking  updated successfully.")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "update failed, please try again.")
+        return super().form_invalid(form)
+
+
+class UpdateOrderView(LoginRequiredMixin, generic.UpdateView):
+    model = Booking
+    fields = "__all__"
+    template_name = "bookings/edit_order.html"
+    context_object_name = "order"
+    pk_url_kwarg = "id"
+    success_url = reverse_lazy("order_list")
+
+    def patch_order(self, instance, booking_data):
+        for key, value in booking_data.items():
+            setattr(instance, key, value)
+        instance.save()
+
+    def post(self, request, *args, **kwargs):
+        booking_data = {
+            "status": request.POST.get("order-status")
+        }
+
+        instance = self.get_object()
+        self.patch_order(instance, booking_data)
+        messages.success(request, "Order updated successfully.")
+        return redirect("update_order", instance.id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["ORDER_STATUS"] = choices.BOOKING_APPROVAL
+        return context
+
+
+class CancelBookingView(LoginRequiredMixin, generic.DeleteView):
+    model = Booking
+    context_object_name = "booking"
+    pk_url_kwarg = "id"
+
+    def get(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        messages.success(request, f"booking cancelled successfully")
+        return redirect("booking_list")
+
+
+class CancelOrderView(LoginRequiredMixin, generic.DeleteView):
+    model = Booking
+    context_object_name = "order"
+    pk_url_kwarg = "id"
+
+    def get(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        messages.success(request, f"order canceled successfully.")
+        return redirect("order_list")
