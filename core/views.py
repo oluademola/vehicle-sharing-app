@@ -35,7 +35,7 @@ class HomeView(generic.ListView):
 
         if vehicle_make_query and vehicle_make_query:
             chained_qs = (
-                Q(vehicle_make__iexact=vehicle_make_query) & 
+                Q(vehicle_make__iexact=vehicle_make_query) &
                 Q(vehicle_type__iexact=vehicle_type_query)
             )
             qs = queryset.filter(chained_qs)
