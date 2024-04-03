@@ -8,7 +8,6 @@
         <caption class="fw-bold fs-5 caption-top">My Vehicle Listings</caption>
         <thead>
           <tr>
-            <th scope="col">Ref</th>
             <th scope="col">Vehicle Name</th>
             <th scope="col">Date Listed</th>
             <th scope="col">Status</th>
@@ -19,8 +18,7 @@
         <tbody>
           {% for vehicle in vehicles %}
             <tr>
-              <th scope="row">1</th>
-              <td>{{ vehicle.model }}</td>
+              <td>{{ vehicle.get_full_vehicle_name }}</td>
               <td>{{ vehicle.created_on|date }}</td>
               <td>{{ vehicle.availability_status }}</td>
               <td class="d-flex gap-1">
