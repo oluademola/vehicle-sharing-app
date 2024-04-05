@@ -1,4 +1,7 @@
-from django.utils import timezone
+"""
+This module contains User model configurations.
+"""
+
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -9,6 +12,9 @@ from apps.users.managers import CustomUserManager
 
 
 class CustomUser(BaseModel, PermissionsMixin, AbstractBaseUser):
+    """
+    User model class
+    """
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     email = models.EmailField(unique=True, max_length=100)
@@ -18,7 +24,8 @@ class CustomUser(BaseModel, PermissionsMixin, AbstractBaseUser):
     document_type = models.CharField(
         max_length=100, choices=choices.DOCUMENT_TYPES)
     document = models.FileField(upload_to="documents/", help_text=_(
-        "upload a legal document that truely identifies you for verification."), blank=True, null=True)
+        "upload a legal document that truely identifies you for verification."),
+        blank=True, null=True)
     profile_picture = models.ImageField(
         upload_to="profile picture/", default="images/dummy.png")
 
@@ -33,14 +40,23 @@ class CustomUser(BaseModel, PermissionsMixin, AbstractBaseUser):
     REQUIRED_FIELDS = ['first_name', 'last_name']
 
     class Meta:
+        """
+        metadata options
+        """
         verbose_name = "User"
         verbose_name_plural = "Users"
 
     def get_full_name(self):
+        """
+        Captilization of full name.
+        """
         return f"{self.first_name.capitalize()} {self.last_name.capitalize()}"
 
     def __str__(self):
         return f"{self.email}"
 
     def get_absolute_url(self):
+        """
+        returns user detail
+        """
         return reverse("user_detail", kwargs={"id": self.id})

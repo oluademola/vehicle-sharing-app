@@ -1,3 +1,7 @@
+"""
+This module contains all the user module logic.
+"""
+
 import mimetypes
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
@@ -7,23 +11,29 @@ from django.contrib.auth import login, logout, authenticate, update_session_auth
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.decorators import method_decorator
 from django.core.files.storage import FileSystemStorage
+from django.db import transaction
 from apps.bookings.models import Booking
 from core.settings import FILE_UPLOAD_MAX_MEMORY_SIZE
 from apps.common import choices
-from .models import CustomUser
 from apps.common.utils import Validators
+from .models import CustomUser
 from .mixings import is_authenticated
-from django.db import transaction
 
 
 @method_decorator(is_authenticated, name="dispatch")
 class RegisterUserView(generic.CreateView):
+    """
+    User registration logic
+    """
     model = CustomUser
     fields = '__all__'
     template_name = "users/register.html"
 
     @transaction.atomic
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
+        """
+        Handles user post request to the DB
+        """
         allowed_content_types = ['application/pdf',
                                  'image/jpeg', 'image/jpg', 'image/png']
         user_data = {
@@ -45,11 +55,13 @@ class RegisterUserView(generic.CreateView):
             return redirect("create_user")
 
         if not Validators.validate_password(user_data.get("password"), confirm_password):
-            messages.error(self.request, "password and confirm password do not match, please try again.")
+            messages.error(self.request,
+            "password and confirm password do not match, please try again.")
             return redirect("create_user")
 
         if not Validators.validate_password_length(user_data.get("password")):
-            messages.error(self.request, "password lenght cannot be less than 10, please try again.")
+            messages.error(self.request,
+            "password lenght cannot be less than 10, please try again.")
             return redirect("create_user")
 
         if not document:
@@ -57,7 +69,9 @@ class RegisterUserView(generic.CreateView):
             return redirect("create_user")
 
         if document.size > FILE_UPLOAD_MAX_MEMORY_SIZE:
-            messages.warning(request, f"Document cannot be larger than {Validators.convert_to_megabyte(document.file_size)}MB.")
+            messages.warning(request,
+            f"Document cannot be larger than {Validators.convert_to_megabyte(document.file_size)}MB"
+            )
             return redirect("create_user")
 
         fs = FileSystemStorage()
@@ -65,7 +79,8 @@ class RegisterUserView(generic.CreateView):
         file_type = mimetypes.guess_type(filename)[0]
 
         if file_type not in allowed_content_types:
-            messages.info(request, "invalid file  upload, only pdf, png, jpg, jpeg file types are accepted.")
+            messages.info(request,
+            "invalid file  upload, only pdf, png, jpg, jpeg file types are accepted.")
             return redirect('create_user')
 
         user: CustomUser = self.model.objects.create(**user_data)
@@ -75,11 +90,17 @@ class RegisterUserView(generic.CreateView):
         return redirect("user_login")
 
     def validate_email(self, email):
+        """
+        validate email
+        """
         if self.model.objects.filter(email=email).exists():
             return False
         return True
 
     def get_context_data(self, **kwargs):
+        """
+        get dropdown prefilled data
+        """
         context = super().get_context_data(**kwargs)
         context["DOCUMENT_TYPES"] = choices.DOCUMENT_TYPES
         return context
@@ -98,12 +119,18 @@ class UserProfileView(LoginRequiredMixin, generic.UpdateView):
         return self.request.user
 
     def patch_user(self, user, user_data):
+        """
+        update user profile details
+        """
         for key, value in user_data.items():
             setattr(user, key, value)
         user.save()
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):
+        """
+        Handles post request for user profile details
+        """
         user_data = {
             "first_name": request.POST.get("firstName"),
             "last_name": request.POST.get("lastName"),
@@ -145,12 +172,18 @@ class DeleteUserView(LoginRequiredMixin, generic.DeleteView):
 
 @method_decorator(is_authenticated, name="dispatch")
 class UserLoginView(generic.TemplateView):
+    """
+    user login view
+    """
     model = CustomUser
     template_name = "users/login.html"
     success_url = reverse_lazy('user_profile')
 
     @transaction.atomic
     def post(self, request):
+        """
+        validate login field
+        """
         email = request.POST.get('email')
         password = request.POST.get('password')
 
@@ -171,6 +204,9 @@ class UserLoginView(generic.TemplateView):
 
 
 class UserLogoutView(generic.TemplateView):
+    """
+    Logout logic
+    """
     def get(self, request):
         logout(request)
         messages.success(self.request, "logout successful.")
@@ -178,11 +214,17 @@ class UserLogoutView(generic.TemplateView):
 
 
 class ChangePasswordView(LoginRequiredMixin, generic.TemplateView):
+    """
+    change password login in user profile
+    """
     template_name = 'users/change_password.html'
     success_url = reverse_lazy("user_profile")
 
     @transaction.atomic
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
+        """
+        Handle password change post request.
+        """
         old_password: str = request.POST.get("old_password")
         new_password1: str = request.POST.get('new_password1')
         new_password2: str = request.POST.get('new_password2')
@@ -208,5 +250,6 @@ class ChangePasswordView(LoginRequiredMixin, generic.TemplateView):
         user.set_password(new_password1)
         user.save()
         update_session_auth_hash(request, user)
-        messages.success(request, "password change successfull. your new password would take effect on next login.")
+        messages.success(request,
+        "password change successfull. your new password would take effect on next login.")
         return redirect("user_profile")

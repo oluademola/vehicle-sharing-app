@@ -1,3 +1,7 @@
+"""
+This contains all the booking module logic 
+"""
+
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404, redirect
@@ -18,16 +22,21 @@ class BookVehicleView(LoginRequiredMixin, generic.CreateView):
     template_name = 'bookings/book_vehicle.html'
     success_url = reverse_lazy("booking_list")
 
-    # This prefills the form with initial data.
     def get_initial(self):
+        """
+        This prefills the form with initial data.
+        """
         initial = super().get_initial()
         vehicle = get_object_or_404(Vehicle, id=self.kwargs['vehicle_id'])
         initial['pickup_location'] = vehicle.pickup_location
         initial['dropoff_location'] = vehicle.pickup_location
         return initial
 
-    # gets vehicle data through the vehicle id suppled on the path and returns to the final booking template.
     def get_context_data(self, **kwargs):
+        """
+        Gets vehicle data through the vehicle id suppled on 
+        the path and returns to the final booking template.
+        """
         context = super().get_context_data(**kwargs)
         vehicle_id = self.kwargs.get('vehicle_id')
         vehicle_obj = get_object_or_404(Vehicle, id=vehicle_id)
@@ -35,6 +44,9 @@ class BookVehicleView(LoginRequiredMixin, generic.CreateView):
         return context
 
     def form_valid(self, form):
+        """
+        Checks form is valid and returns approriate message
+        """
         vehicle_id = self.kwargs.get('vehicle_id')
         vehicle = get_object_or_404(Vehicle, id=vehicle_id)
         start_date = form.instance.start_date
@@ -44,7 +56,8 @@ class BookVehicleView(LoginRequiredMixin, generic.CreateView):
             messages.error(self.request, "use and return a vehicle in the same period of time.")
 
         if not self.is_booking_available(vehicle, start_date, end_date):
-            messages.error(self.request, "bookings not available, please select a different date or check other vehicles.")
+            messages.error(self.request,
+            "bookings not available, please select a different date or check other vehicles.")
             self.form_invalid(form)
 
         if vehicle.owner == self.request.user:
@@ -59,10 +72,16 @@ class BookVehicleView(LoginRequiredMixin, generic.CreateView):
         return super().form_valid(form)
 
     def form_invalid(self, form):
+        """
+        Returns message config for invalid form
+        """
         messages.error(self.request, "could not process booking, please try again")
         return super().form_invalid(form)
 
     def is_booking_available(self, vehicle, start_date, end_date):
+        """
+        Get list of booking if available and return apprpriate message
+        """
         bookings = Booking.objects.filter(vehicle=vehicle)
         for booking in bookings:
             if not (end_date < booking.start_date or start_date > booking.end_date):
@@ -93,6 +112,9 @@ class BookingListView(LoginRequiredMixin, generic.ListView):
     context_object_name = "bookings"
 
     def get_queryset(self):
+        """
+        Returns a queryset
+        """
         return super().get_queryset().filter(renter=self.request.user)
 
 
@@ -108,10 +130,16 @@ class UpdateBookingView(LoginRequiredMixin, generic.UpdateView):
     success_url = reverse_lazy("booking_list")
 
     def form_valid(self, form):
+        """
+        Returns successful message for valid form
+        """
         messages.success(self.request, "booking  updated successfully.")
         return super().form_valid(form)
 
     def form_invalid(self, form):
+        """
+        Returns appropriate message for invalid form.
+        """
         messages.error(self.request, "update failed, please try again.")
         return super().form_invalid(form)
 
@@ -128,6 +156,9 @@ class UpdateOrderView(LoginRequiredMixin, generic.UpdateView):
     success_url = reverse_lazy("order_list")
 
     def patch_order(self, instance, booking_data):
+        """
+        booking order partial update
+        """
         for key, value in booking_data.items():
             setattr(instance, key, value)
         instance.save()

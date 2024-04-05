@@ -1,3 +1,7 @@
+"""
+This module contains all the vehicle module logic.
+"""
+
 import mimetypes
 from django.db.models.base import Model as Model
 from django.http import  HttpResponse
@@ -5,12 +9,11 @@ from django.urls import reverse_lazy
 from django.views import generic
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import redirect
+from django.core.files.storage import FileSystemStorage
 from apps.common.utils import Validators
 from apps.vehicles.models import Vehicle
-from django.shortcuts import redirect
 from core.settings import FILE_UPLOAD_MAX_MEMORY_SIZE
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.files.storage import FileSystemStorage
 from apps.common import choices
 
 
@@ -54,7 +57,8 @@ class CreateVehicleView(LoginRequiredMixin, generic.CreateView):
             return redirect("add_vehicle")
 
         if vehicle_image.size > FILE_UPLOAD_MAX_MEMORY_SIZE:
-            messages.warning(request, f"image cannot be larger than {Validators.convert_to_megabyte(vehicle_image.file_size)}MB.")
+            messages.warning(request,
+            f"image cannot be larger than {Validators.convert_to_megabyte(vehicle_image.file_size)}MB.")
             return redirect("add_vehicle")
 
         fs = FileSystemStorage()
@@ -62,7 +66,8 @@ class CreateVehicleView(LoginRequiredMixin, generic.CreateView):
         file_type = mimetypes.guess_type(filename)[0]
 
         if file_type not in allowed_image_types:
-            messages.info(request, "invalid image file  upload, only png, jpg, jpeg and pdf file types are accepted.")
+            messages.info(request,
+            "invalid image file  upload, only png, jpg, jpeg and pdf file types are accepted.")
             return redirect('add_vehicle')
 
         # validates vehicle registration certificate.
@@ -71,7 +76,8 @@ class CreateVehicleView(LoginRequiredMixin, generic.CreateView):
             return redirect("add_vehicle")
 
         if vehicle_reg_cert.size > FILE_UPLOAD_MAX_MEMORY_SIZE:
-            messages.warning(request, f"certificate cannot be larger than {Validators.convert_to_megabyte(vehicle_reg_cert.file_size)}MB.")
+            messages.warning(request,
+            f"certificate cannot be larger than {Validators.convert_to_megabyte(vehicle_reg_cert.file_size)}MB.")
             return redirect("add_vehicle")
 
         fs = FileSystemStorage()
@@ -79,7 +85,8 @@ class CreateVehicleView(LoginRequiredMixin, generic.CreateView):
         file_type = mimetypes.guess_type(filename)[0]
 
         if file_type not in allowed_content_types:
-            messages.info(request, "invalid file  upload, only png, jpg, jpeg and pdf file types are accepted.")
+            messages.info(request,
+            "invalid file  upload, only png, jpg, jpeg and pdf file types are accepted.")
             return redirect('add_vehicle')
 
         vehicle_data["image"] = vehicle_image
@@ -91,7 +98,8 @@ class CreateVehicleView(LoginRequiredMixin, generic.CreateView):
 
     def get_context_data(self, **kwargs):
         """
-        Returns these context names to the template so as to serve through the html form fields.
+        Returns these context names to the template 
+        so as to serve through the html form fields.
         """
         context = super().get_context_data(**kwargs)
         context["VEHICLE_MAKES"] = choices.VEHICLE_MAKES
@@ -141,11 +149,17 @@ class UpdateVehicleView(LoginRequiredMixin, generic.UpdateView):
     success_url = reverse_lazy("vehicle_list")
 
     def patch_vehicle(self, vehicle, vehicle_data):
+        """
+        handles the partial update
+        """
         for key, value in vehicle_data.items():
             setattr(vehicle, key, value)
         vehicle.save()
 
     def post(self, request, *args, **kwargs):
+        """
+        full post/update request
+        """
         allowed_content_types = ["image/jpg", "image/jpeg", "image/png"]
         vehicle_data = {
             "owner": request.user,

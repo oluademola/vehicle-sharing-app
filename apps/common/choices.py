@@ -1,3 +1,7 @@
+"""
+This module contains all the dropdowns prefilled options.
+"""
+
 GENDER = (
     ('', 'Select gender'),
     ('Male', 'Male'),

@@ -1,10 +1,20 @@
+"""
+This module contains user form config.
+"""
+
 from django import forms
-from .models import CustomUser
 from django.contrib.auth import get_user_model, forms as auth_forms
+from .models import CustomUser
 
 
 class CustomUserCreationForm(auth_forms.UserCreationForm):
+    """
+    Creates new CustomUser instance.
+    """
     class Meta:
+        """
+        metadata options
+        """
         model = get_user_model()
         fields = ('email',)
 
@@ -13,7 +23,13 @@ class CustomUserCreationForm(auth_forms.UserCreationForm):
 
 
 class CustomUserChangeForm(auth_forms.UserChangeForm):
+    """
+    Updates CustomUser instance form.
+    """
     class Meta:
+        """
+        metadata options
+        """
         model = get_user_model()
         fields = ('email',)
 
@@ -22,21 +38,35 @@ class CustomUserChangeForm(auth_forms.UserChangeForm):
 
 
 class UserForm(forms.ModelForm):
+    """
+    Form to create or update user
+    """
 
     class Meta:
+        """
+        metadata options
+        """
         model = CustomUser
         fields = '__all__'
         exclude = ('date_joined', 'profile_code')
         widgets = {
-            "email": forms.EmailInput(attrs={"class": "form-control mt-3", "placeholder": "Enter email"}),
-            "first_name": forms.TextInput(attrs={"class": "form-control mt-3", "placeholder": "Enter first name"}),
-            "last_name": forms.TextInput(attrs={"class": "form-control mt-3", "placeholder": "Enter last name"}),
+            "email": forms.EmailInput(
+                attrs={"class": "form-control mt-3", "placeholder": "Enter email"}),
+            "first_name": forms.TextInput(
+                attrs={"class": "form-control mt-3", "placeholder": "Enter first name"}),
+            "last_name": forms.TextInput(
+                attrs={"class": "form-control mt-3", "placeholder": "Enter last name"}),
             "gender": forms.Select(attrs={"class": "form-control mt-3"}),
-            "phone_no": forms.TextInput(attrs={"class": "form-control mt-3", "placeholder": "Enter phone_no"}),
-            "password": forms.PasswordInput(attrs={"class": "form-control mt-3", "placeholder": "Enter password"}),
-            "address": forms.TextInput(attrs={"class": "form-control mt-3", "placeholder": "Enter address"}),
-            "city": forms.TextInput(attrs={"class": "form-control mt-3", "placeholder": "Enter city"}),
-            "state": forms.TextInput(attrs={"class": "form-control mt-3", "placeholder": "Enter state"}),
+            "phone_no": forms.TextInput(
+                attrs={"class": "form-control mt-3", "placeholder": "Enter phone_no"}),
+            "password": forms.PasswordInput(
+                attrs={"class": "form-control mt-3", "placeholder": "Enter password"}),
+            "address": forms.TextInput(
+                attrs={"class": "form-control mt-3", "placeholder": "Enter address"}),
+            "city": forms.TextInput(
+                attrs={"class": "form-control mt-3", "placeholder": "Enter city"}),
+            "state": forms.TextInput(
+                attrs={"class": "form-control mt-3", "placeholder": "Enter state"}),
             "country": forms.Select(attrs={"class": "form-control mt-3"}),
             "document_type": forms.Select(attrs={"class": "form-control mt-3"}),
             "document": forms.FileInput(attrs={"class": "form-control mt-3"}),
@@ -45,6 +75,9 @@ class UserForm(forms.ModelForm):
 
 
 class UserUpdateForm(forms.ModelForm):
+    """
+    User update form
+    """
     first_name = forms.CharField(required=False)
     last_name = forms.CharField(required=False)
     email = forms.EmailField(widget=forms.EmailInput, required=False)
@@ -55,6 +88,9 @@ class UserUpdateForm(forms.ModelForm):
     profile_picture = forms.ImageField(required=False)
 
     class Meta:
+        """
+        metadata options
+        """
         model = CustomUser
         fields = ['first_name', 'last_name', 'email',
                   'phone_no', 'address', 'city', 'state']
@@ -79,4 +115,7 @@ class UserUpdateForm(forms.ModelForm):
 
 
 class CustomPasswordConfirmForm(auth_forms.PasswordChangeForm):
+    """
+    confirm password
+    """
     old_password = None

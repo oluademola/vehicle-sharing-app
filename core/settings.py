@@ -36,7 +36,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["b1adfc9144ab4f1ba7997cb6261faceb.vfs.cloud9.eu-west-1.amazonaws.com",
 "x23240334cdosproject-env.eba-7e3mn4pm.eu-west-1.elasticbeanstalk.com"]
-CSRF_TRUSTED_ORIGINS = ["https://b1adfc9144ab4f1ba7997cb6261faceb.vfs.cloud9.eu-west-1.amazonaws.com"]
+CSRF_TRUSTED_ORIGINS = [
+    "https://b1adfc9144ab4f1ba7997cb6261faceb.vfs.cloud9.eu-west-1.amazonaws.com"
+]
 
 
 # Application definition
@@ -155,46 +157,6 @@ MEDIA_URL = "/media/"
 STATIC_ROOT = os.path.join(BASE_DIR / "staticfles")
 STATICFILES_DIRS = (os.path.join(BASE_DIR / "static"),)
 MEDIA_ROOT = os.path.join(BASE_DIR / "media")
-
-# TODO: AWS S3 CONFIGURATION
-# AWS_ACCESS_KEY_ID = env('AW_ACCESS_KEY_ID')
-# AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
-
-# AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME')
-# AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
-# AWS_S3_ENDPOINT_URL = env("AWS_S3_ENDPOINT_URL")
-
-# AWS_STATIC_LOCATION = 'static'
-# AWS_DEFAULT_ACL = "public-read"
-# AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
-
-# AWS_S3_SIGNATURE_VERSION = 's3v4'
-
-# STORAGES = {
-#     "default": {
-#         "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
-#         "OPTIONS": {
-#             "bucket_name": AWS_STORAGE_BUCKET_NAME,
-#             "region_name": AWS_S3_REGION_NAME,
-#             "default_acl":  AWS_DEFAULT_ACL,
-#             "signature_version": AWS_S3_SIGNATURE_VERSION
-#         },
-#     },
-#     "staticfiles": {
-#         "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
-#         "OPTIONS": {
-#             "bucket_name": AWS_STORAGE_BUCKET_NAME,
-#             "region_name": AWS_S3_REGION_NAME,
-#             "default_acl":  AWS_DEFAULT_ACL,
-#             "signature_version": AWS_S3_SIGNATURE_VERSION
-#         },
-#     },
-# }
-
-
-# STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'),]
-# STATIC_URL = f'https://{AWS_S3_ENDPOINT_URL}/{AWS_STATIC_LOCATION}/'
-# MEDIA_URL = f'https://{AWS_S3_ENDPOINT_URL}/{AWS_STATIC_LOCATION}/'
 
 
 # Default primary key field type
