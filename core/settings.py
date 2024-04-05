@@ -32,7 +32,7 @@ dotenv.load_dotenv()
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["b1adfc9144ab4f1ba7997cb6261faceb.vfs.cloud9.eu-west-1.amazonaws.com",
 "x23240334cdosproject-env.eba-tadh6dan.eu-west-1.elasticbeanstalk.com"]
