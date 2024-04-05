@@ -14,6 +14,7 @@ phases:
    - python --version
    - pylint $CODEBUILD_SRC_DIR/*.py
    - pylint $CODEBUILD_SRC_DIR/core/*.py
+   - pylint $CODEBUILD_SRC_DIR/apps/bookings/*.py
    
 artifacts:
   files:
