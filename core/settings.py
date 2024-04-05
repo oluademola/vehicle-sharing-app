@@ -35,7 +35,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = ["b1adfc9144ab4f1ba7997cb6261faceb.vfs.cloud9.eu-west-1.amazonaws.com",
-"x23240334cdosproject-env.eba-7e3mn4pm.eu-west-1.elasticbeanstalk.com"]
+"x23240334cdosproject-env.eba-tadh6dan.eu-west-1.elasticbeanstalk.com"]
 CSRF_TRUSTED_ORIGINS = [
     "https://b1adfc9144ab4f1ba7997cb6261faceb.vfs.cloud9.eu-west-1.amazonaws.com"
 ]
