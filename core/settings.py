@@ -29,11 +29,10 @@ dotenv.load_dotenv()
 # SECURITY WARNING: keep the secret key used in production secret!
 
 # Access environment variables using os.environ
-
-SECRET_KEY = "django-insecure-==64$+0xzy0$w_!7qgi39@1pkli*ejx3p%vf%y7^r54oblefdw"
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["b1adfc9144ab4f1ba7997cb6261faceb.vfs.cloud9.eu-west-1.amazonaws.com",
 "x23240334cdosproject-env.eba-tadh6dan.eu-west-1.elasticbeanstalk.com"]
